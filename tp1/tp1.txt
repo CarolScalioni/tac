@@ -1,0 +1,47 @@
+#requête SPARQL
+#Liste de plats traditionnels de la Belgique
+endpoint = "https://query.wikidata.org/bigdata/namespace/wdq/sparql"
+sparql = SPARQLWrapper(endpoint)
+
+# P868 = plat traditionnel
+# Q31 = Belgium
+# P279 = subclass of
+
+# P106 = Opccupation
+# Q82955 = Politician
+# P569 = date of birth
+# P570 = date of death
+SELECT DISTINCT ?item ?itemLabel WHERE {
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }
+  {
+    SELECT DISTINCT ?item WHERE {
+      ?item p:P868 ?statement0.
+      ?statement0 (ps:P868/(wdt:P279*)) wd:Q31.
+    }
+    LIMIT 100
+  }
+}
+sparql.setQuery(statement)
+sparql.setReturnFormat(JSON)
+results = sparql.query().convert()
+
+
+#court script pour interroger l'API des archives du The New York Times
+keyword "Belgium"
+keyword2 "food"
+year "1875"
+month "9"
+
+base_url = "https://api.nytimes.com/svc/archive/v1"
+keyword_url = base_url + "keyword/"
+keyword2_url = base_url + "keyword2/"
+year_url = base_url + "year/"
+month_url = base_url + "month/"
+resp = requests.get(name_url + year_month)
+keyword = resp.json()[0]
+try:
+    articles = keyword['articles']
+    print(f"articles: {', '.join([lang for lang in articles.values()])}")
+    
+except KeyError:
+    print("Unknown food")
